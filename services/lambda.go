@@ -21,7 +21,7 @@ func LambdaExec(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 	if !validateParams() {
 		res = &events.APIGatewayProxyResponse{
 			StatusCode: 400,
-			Body: "Error en las variables de entorno. Deben incluir 'SecretName', 'BucketName' y 'UrlPrefix'",
+			Body: "Error en las variables de entorno. Deben incluir 'SECRET_NAME', 'BUCKET_NAME' y 'URL_PREFIX'",
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
@@ -29,7 +29,7 @@ func LambdaExec(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 		return res, nil
 	}
 
-	SecretModels, err := secretmanager.GetSecret(os.Getenv("SecretName"))
+	SecretModels, err := secretmanager.GetSecret(os.Getenv("SECRET_NAME"))
 	if err != nil {
 		res = &events.APIGatewayProxyResponse{
 			StatusCode: 400,
@@ -41,7 +41,7 @@ func LambdaExec(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 		return res, nil
 	}
 
-	path := strings.Replace(request.PathParameters["twitterUala"], os.Getenv("UrlPrefix"), "", -1)
+	path := strings.Replace(request.PathParameters["twitteruala"], os.Getenv("URL_PREFIX"), "", -1)
 
 	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("path"), path)
 	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("method"), request.HTTPMethod)
@@ -51,7 +51,7 @@ func LambdaExec(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("host"), SecretModels.Host)
 	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("database"), SecretModels.Database)
 	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("jwtSign"), SecretModels.JWTSign)
-	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("bucketName"), os.Getenv("BucketName"))
+	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("bucket_name"), os.Getenv("BUCKET_NAME"))
 
 	err = db.ConnectMongo(aws.Ctx)
 	if err != nil {
@@ -81,17 +81,17 @@ func LambdaExec(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 }
 
 func validateParams() bool {
-	_, isParam := os.LookupEnv("SecretName")
+	_, isParam := os.LookupEnv("SECRET_NAME")
 	if !isParam {
 		return false
 	}
 
-	_, isParam = os.LookupEnv("BucketName")
+	_, isParam = os.LookupEnv("BUCKET_NAME")
 	if !isParam {
 		return false
 	}
 
-	_, isParam = os.LookupEnv("UrlPrefix")
+	_, isParam = os.LookupEnv("URL_PREFIX")
 	if !isParam {
 		return false
 	}

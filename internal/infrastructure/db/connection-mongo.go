@@ -21,13 +21,13 @@ func ConnectMongo(ctx context.Context) (error) {
 	var clientOptions = options.Client().ApplyURI(connStr)
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		fmt.Printf("Error en la conexión a la base de datos: ", err.Error())
+		fmt.Println("Error en la conexión a la base de datos:", err)
 		return err
 	}
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		fmt.Printf("Error al hacer ping en la base de datos: ", err.Error())
+		fmt.Println("Error en la conexión a la base de datos:", err)
 		return err
 	}
 

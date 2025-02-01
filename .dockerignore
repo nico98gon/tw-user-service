@@ -1,0 +1,23 @@
+bin/
+*.out
+*.exe
+
+*.log
+*.tmp
+*.swp
+*.swo
+.DS_Store
+
+tmp/
+.air.toml
+.env
+
+*.test
+
+.git
+.gitignore
+
+# Configuración específica de editores
+.vscode/
+.idea/
+*.swp
