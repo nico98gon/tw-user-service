@@ -8,23 +8,43 @@ import (
 	"user-service/internal/utils"
 )
 
-func validateName(name string) error {
-	if len(name) == 0 {
+func validateName(name string, required bool) error {
+	if required && len(name) == 0 {
 		return errors.New("el nombre es requerido")
 	}
-	if !regexp.MustCompile(`^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$`).MatchString(name) {
-		return errors.New("el nombre solo puede contener letras y espacios")
+	if len(name) > 0 && len(name) < 2 {
+		return errors.New("el nombre debe tener al menos 2 caracteres")
+	} 
+	if len(name) > 0 {
+		re, err := regexp.Compile(`^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$`)
+		if err != nil {
+			return errors.New("error en la expresión regular de validación del nombre")
+		}
+		if !re.MatchString(name) {
+			return errors.New("el nombre solo puede contener letras y espacios")
+		}
 	}
+
 	return nil
 }
 
-func validateLastName(lastName string) error {
-	if len(lastName) == 0 {
+func validateLastName(lastName string, required bool) error {
+	if required && len(lastName) == 0 {
 		return errors.New("el apellido es requerido")
 	}
-	if !regexp.MustCompile(`^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$`).MatchString(lastName) {
-		return errors.New("el apellido solo puede contener letras y espacios")
+	if len(lastName) > 0 && len(lastName) < 2 {
+		return errors.New("el apellido debe tener al menos 2 caracteres")
+	} 
+	if len(lastName) > 0 {
+		re, err := regexp.Compile(`^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$`)
+		if err != nil {
+			return errors.New("error en la expresión regular de validación del apellido")
+		}
+		if !re.MatchString(lastName) {
+			return errors.New("el apellido solo puede contener letras y espacios")
+		}
 	}
+
 	return nil
 }
 
@@ -87,18 +107,23 @@ func validatePassword(password string) error {
 	return nil
 }
 
-func validateURL(url string) error {
-	if len(url) == 0 {
-		return nil
+func validateURL(url string, required bool) error {
+	if required && len(url) == 0 {
+		return errors.New("la URL es requerida")
 	}
-	urlRegex := regexp.MustCompile(`^https?:\/\/[^\s]+$`)
-	if !urlRegex.MatchString(url) {
-		return errors.New("la URL no es válida")
+	if len(url) > 0 {
+		urlRegex := regexp.MustCompile(`^https?:\/\/[^\s]+$`)
+		if !urlRegex.MatchString(url) {
+			return errors.New("la URL no es válida")
+		}
 	}
 	return nil
 }
 
-func validateLocation(location string) error {
+func validateLocation(location string, required bool) error {
+	if required && len(location) == 0 {
+		return errors.New("la ubicación es requerida")
+	}
 	if len(location) > 100 {
 		return errors.New("la ubicación no puede tener más de 100 caracteres")
 	}

@@ -20,7 +20,6 @@ func ProcessToken(token string, JWTSign string) (*domain.Claim, bool, string, er
 	if len(splitToken) != 2 {
 		return &claims, false, "", errors.New("formato de token inválido")
 	}
-
 	token = strings.TrimSpace(splitToken[1])
 
 	tkn, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {

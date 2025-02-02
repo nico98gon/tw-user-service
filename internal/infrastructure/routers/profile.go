@@ -35,6 +35,12 @@ func Profile(request events.APIGatewayProxyRequest) domain.RespAPI {
 	}
 
 	r.Status = 200
-	r.Message = string(respJson)
+	r.CustomResp = &events.APIGatewayProxyResponse{
+		StatusCode: 200,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: string(respJson),
+	}
 	return r
 }

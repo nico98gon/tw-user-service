@@ -17,7 +17,7 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 	var r domain.RespAPI
 	r.Status = 400
 
-	isOk, statusCode, msg, _ := checkAuth(ctx, request)
+	isOk, statusCode, msg, claim := checkAuth(ctx, request)
 	if !isOk {
 		fmt.Println("Falló la autenticación:", msg)
 		r.Status = statusCode
@@ -26,12 +26,11 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 	}
 
 	fmt.Println("Autenticación exitosa")
-
 	switch ctx.Value(domain.Key("method")).(string) {
 	case "GET":
 		fmt.Println("Método GET detectado")
-		
 		switch ctx.Value(domain.Key("path")).(string) {
+
 		case "profile":
 			fmt.Println("Procesando perfil de usuario...")
 			r = routers.Profile(request)
@@ -42,15 +41,28 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 	case "POST":
 			fmt.Println("Método POST detectado")
 			switch ctx.Value(domain.Key("path")).(string) {
+
 			case "register":
 				fmt.Println("Procesando registro de usuario...")
 				r = routers.Register(ctx)
 				fmt.Println("Registro finalizado:", r.Message)
 				return r
+
 			case "login":
 				fmt.Println("Procesando inicio de sesión...")
 				r = routers.Login(ctx)
 				fmt.Println("Inicio de sesión finalizado:", r.Message)
+				return r
+			}
+
+		case "PUT":
+			fmt.Println("Método PUT detectado")
+			switch ctx.Value(domain.Key("path")).(string) {
+
+			case "update-profile":
+				fmt.Println("Procesando actualización de perfil de usuario...")
+				r = routers.UpdateProfile(ctx, claim)
+				fmt.Println("Actualización de perfil de usuario finalizada:", r.Message)
 				return r
 			}
 		}
@@ -87,6 +99,8 @@ func checkAuth(ctx context.Context, request events.APIGatewayProxyRequest) (isOk
 			return false, 401, msg, &domain.Claim{}
 		}
 	}
+
+	fmt.Println("Token OK - ID del usuario en el token:", claim.ID.Hex())
 
 	fmt.Println("Token OK")
 	return true, 200, "OK", claim

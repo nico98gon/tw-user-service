@@ -9,11 +9,11 @@ import (
 func RegisterValidations(u User) error {
 	var errorMessages []string
 
-	if err := validateName(u.Name); err != nil {
+	if err := validateName(u.Name, true); err != nil {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
-	if err := validateLastName(u.LastName); err != nil {
+	if err := validateLastName(u.LastName, true); err != nil {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
@@ -29,19 +29,19 @@ func RegisterValidations(u User) error {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
-	if err := validateURL(u.Avatar); err != nil {
+	if err := validateURL(u.Avatar, true); err != nil {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
-	if err := validateURL(u.Banner); err != nil {
+	if err := validateURL(u.Banner, true); err != nil {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
-	if err := validateURL(u.WebSite); err != nil {
+	if err := validateURL(u.WebSite, true); err != nil {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
-	if err := validateLocation(u.Location); err != nil {
+	if err := validateLocation(u.Location, true); err != nil {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
