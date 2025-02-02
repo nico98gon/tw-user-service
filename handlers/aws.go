@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"strings"
 	"user-service/internal/domain"
 	"user-service/internal/infrastructure/routers"
 	jwt "user-service/pkg/JWT"
@@ -29,26 +30,30 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 	switch ctx.Value(domain.Key("method")).(string) {
 	case "GET":
 		fmt.Println("Método GET detectado")
+		
+		switch ctx.Value(domain.Key("path")).(string) {
 		case "profile":
 			fmt.Println("Procesando perfil de usuario...")
 			r = routers.Profile(request)
 			fmt.Println("Perfil de usuario finalizado:", r.Message)
 			return r
-	case "POST":
-		fmt.Println("Método POST detectado")
-		switch ctx.Value(domain.Key("path")).(string) {
-		case "register":
-			fmt.Println("Procesando registro de usuario...")
-			r = routers.Register(ctx)
-			fmt.Println("Registro finalizado:", r.Message)
-			return r
-		case "login":
-			fmt.Println("Procesando inicio de sesión...")
-			r = routers.Login(ctx)
-			fmt.Println("Inicio de sesión finalizado:", r.Message)
-			return r
 		}
-	}
+
+	case "POST":
+			fmt.Println("Método POST detectado")
+			switch ctx.Value(domain.Key("path")).(string) {
+			case "register":
+				fmt.Println("Procesando registro de usuario...")
+				r = routers.Register(ctx)
+				fmt.Println("Registro finalizado:", r.Message)
+				return r
+			case "login":
+				fmt.Println("Procesando inicio de sesión...")
+				r = routers.Login(ctx)
+				fmt.Println("Inicio de sesión finalizado:", r.Message)
+				return r
+			}
+		}
 
 	fmt.Println("Método inválido detectado")
 	r.Message = "Method Invalid"
@@ -63,12 +68,14 @@ func checkAuth(ctx context.Context, request events.APIGatewayProxyRequest) (isOk
 
 	token := request.Headers["Authorization"]
 	if len(token) == 0 {
-			fmt.Println("path:", path)
-			fmt.Println("Token no encontrado en el encabezado de la solicitud")
-			return false, 401, "Unauthorized: Token requerido", &domain.Claim{}
+		fmt.Println("path:", path)
+		fmt.Println("Token no encontrado en el encabezado de la solicitud")
+		return false, 401, "Unauthorized: Token requerido", &domain.Claim{}
 	}
-
-	fmt.Println("Token recibido:", token)
+	if !strings.HasPrefix(token, "Bearer") {
+    fmt.Println("Error: No empieza con 'Bearer'", token)
+    return false, 401, "Unauthorized: Formato de token incorrecto", &domain.Claim{}
+	}
 
 	claim, isOk, msg, err := jwt.ProcessToken(token, ctx.Value(domain.Key("jwtSign")).(string))
 	if !isOk {

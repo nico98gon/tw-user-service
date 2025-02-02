@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 	"user-service/internal/domain"
+	"user-service/internal/infrastructure/db"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -26,12 +27,19 @@ func ProcessToken(token string, JWTSign string) (*domain.Claim, bool, string, er
 		return myKey, nil
 	})
 	if err != nil {
-		// Rutina que chequea en DB
+		_, found, _ := db.UserAlreadyExists(claims.Email)
+		if found {
+			Email = claims.Email
+			IDUsuario = claims.ID.Hex()
+		}
+		return &claims, true, IDUsuario, nil
 	}
 	if !tkn.Valid {
 		return &claims, false, "", errors.New("token inválido")
 	}
+
 	Email = claims.Email
 	IDUsuario = claims.ID.Hex()
+
 	return &claims, false, "", nil
 }
