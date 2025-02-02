@@ -29,6 +29,11 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 	switch ctx.Value(domain.Key("method")).(string) {
 	case "GET":
 		fmt.Println("Método GET detectado")
+		case "profile":
+			fmt.Println("Procesando perfil de usuario...")
+			r = routers.Profile(request)
+			fmt.Println("Perfil de usuario finalizado:", r.Message)
+			return r
 	case "POST":
 		fmt.Println("Método POST detectado")
 		switch ctx.Value(domain.Key("path")).(string) {
@@ -65,7 +70,7 @@ func checkAuth(ctx context.Context, request events.APIGatewayProxyRequest) (isOk
 
 	fmt.Println("Token recibido:", token)
 
-	claim, isOk, msg, err := jwt.ProcessToken(token, ctx.Value(domain.Key("JWTSign")).(string))
+	claim, isOk, msg, err := jwt.ProcessToken(token, ctx.Value(domain.Key("jwtSign")).(string))
 	if !isOk {
 		if err != nil {
 			fmt.Println("Error en el token: ", err)

@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"context"
+	"errors"
 	"time"
 	"user-service/internal/domain"
 	"user-service/internal/domain/users"
@@ -10,7 +11,10 @@ import (
 )
 
 func GenerateToken(ctx context.Context, u users.User) (string, error) {
-	jwtSign := ctx.Value(domain.Key("JWTSign")).(string)
+	jwtSign, ok := ctx.Value(domain.Key("jwtSign")).(string)
+	if !ok {
+		return "", errors.New("no se pudo encontrar jwt_sign")
+	}
 	myKey := []byte(jwtSign)
 
 	payload := jwt.MapClaims{

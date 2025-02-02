@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strings"
 	"user-service/handlers"
@@ -58,6 +59,10 @@ func LambdaExec(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 			},
     }
     return res, nil
+	}
+
+	if SecretModels.JWTSign == "" {
+    return nil, fmt.Errorf("JWTSign no encontrado en SecretModels")
 	}
 
 	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("path"), path)

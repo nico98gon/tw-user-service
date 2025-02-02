@@ -13,19 +13,25 @@ import (
 // GetSecret obtiene las claves secretas de AWS
 func GetSecret(secretName string) (domain.Secret, error) {
 	var secretData domain.Secret
-	fmt.Println("> Se pide secreto"+ secretName)
+	fmt.Println("> Se pide secreto:", secretName)
 
 	svc := secretsmanager.NewFromConfig(awsSession.Cfg)
 	key, err := svc.GetSecretValue(awsSession.Ctx, &secretsmanager.GetSecretValueInput{
-		SecretId: aws.String(secretName),
+			SecretId: aws.String(secretName),
 	})
 	if err != nil {
-		fmt.Println(err.Error())
-		return secretData, err
+			fmt.Println("Error al obtener el secreto:", err.Error())
+			return secretData, err
 	}
 
-	json.Unmarshal([]byte(*key.SecretString), &secretData)
-	fmt.Println(" > Obtención secreto OK"+ secretName)
+	fmt.Println("Secreto obtenido:", *key.SecretString)
 
+	err = json.Unmarshal([]byte(*key.SecretString), &secretData)
+	if err != nil {
+			fmt.Println("Error al deserializar el secreto:", err.Error())
+			return secretData, err
+	}
+
+	fmt.Println("Secreto deserializado:", secretData)
 	return secretData, nil
 }
