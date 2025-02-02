@@ -37,6 +37,11 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 			r = routers.Register(ctx)
 			fmt.Println("Registro finalizado:", r.Message)
 			return r
+		case "login":
+			fmt.Println("Procesando inicio de sesión...")
+			r = routers.Login(ctx)
+			fmt.Println("Inicio de sesión finalizado:", r.Message)
+			return r
 		}
 	}
 

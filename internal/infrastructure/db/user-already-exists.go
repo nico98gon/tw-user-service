@@ -7,8 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-
-
 func UserAlreadyExists(email string) (users.User, bool, string) {
 	ctx := context.TODO()
 

@@ -25,7 +25,7 @@ func Register(ctx context.Context) domain.RespAPI {
 		return r
 	}
 
-	if err := users.Validations(u); err != nil {
+	if err := users.RegisterValidations(u); err != nil {
 		r.Message = err.Error()
 		fmt.Println(r.Message)
 		return r

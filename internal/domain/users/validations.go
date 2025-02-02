@@ -5,54 +5,8 @@ import (
 	"regexp"
 	"time"
 	"unicode"
+	"user-service/internal/utils"
 )
-
-// Validations verifica todas las validaciones de un usuario y devuelve un error consolidado si hay fallos
-func Validations(u User) error {
-	var errorMessages []string
-
-	if err := validateName(u.Name); err != nil {
-		errorMessages = append(errorMessages, err.Error())
-	}
-
-	if err := validateLastName(u.LastName); err != nil {
-		errorMessages = append(errorMessages, err.Error())
-	}
-
-	if err := validateEmail(u.Email); err != nil {
-		errorMessages = append(errorMessages, err.Error())
-	}
-
-	if err := validateBirthdate(u.Birthdate); err != nil {
-		errorMessages = append(errorMessages, err.Error())
-	}
-
-	if err := validatePassword(u.Password); err != nil {
-		errorMessages = append(errorMessages, err.Error())
-	}
-
-	if err := validateURL(u.Avatar); err != nil {
-		errorMessages = append(errorMessages, err.Error())
-	}
-
-	if err := validateURL(u.Banner); err != nil {
-		errorMessages = append(errorMessages, err.Error())
-	}
-
-	if err := validateURL(u.WebSite); err != nil {
-		errorMessages = append(errorMessages, err.Error())
-	}
-
-	if err := validateLocation(u.Location); err != nil {
-		errorMessages = append(errorMessages, err.Error())
-	}
-
-	if len(errorMessages) > 0 {
-		return errors.New("Errores de validación:\n" + joinErrors(errorMessages))
-	}
-
-	return nil
-}
 
 func validateName(name string) error {
 	if len(name) == 0 {
@@ -127,7 +81,7 @@ func validatePassword(password string) error {
 	}
 
 	if len(errorMessages) > 0 {
-		return errors.New(joinErrors(errorMessages))
+		return errors.New(utils.JoinErrors(errorMessages))
 	}
 
 	return nil
@@ -149,13 +103,4 @@ func validateLocation(location string) error {
 		return errors.New("la ubicación no puede tener más de 100 caracteres")
 	}
 	return nil
-}
-
-// joinErrors convierte un slice de errores en un solo string con saltos de línea
-func joinErrors(errors []string) string {
-	result := ""
-	for _, err := range errors {
-		result += "- " + err + "\n"
-	}
-	return result
 }
