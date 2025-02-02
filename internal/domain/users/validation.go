@@ -4,9 +4,10 @@ import (
 	"errors"
 	"regexp"
 	"time"
+	"unicode"
 )
 
-// Validations verifica las validaciones de un usuario y los devuelve en una sola respuesta
+// Validations verifica todas las validaciones de un usuario y devuelve un error consolidado si hay fallos
 func Validations(u User) error {
 	var errorMessages []string
 
@@ -14,7 +15,7 @@ func Validations(u User) error {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
-	if err := validateName(u.LastName); err != nil {
+	if err := validateLastName(u.LastName); err != nil {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
@@ -47,7 +48,7 @@ func Validations(u User) error {
 	}
 
 	if len(errorMessages) > 0 {
-		return errors.New("Errores de validación:\n- " + joinErrors(errorMessages))
+		return errors.New("Errores de validación:\n" + joinErrors(errorMessages))
 	}
 
 	return nil
@@ -96,7 +97,6 @@ func validateBirthdate(birthdate time.Time) error {
 	return nil
 }
 
-
 func validatePassword(password string) error {
 	var errorMessages []string
 
@@ -104,18 +104,26 @@ func validatePassword(password string) error {
 		errorMessages = append(errorMessages, "la contraseña debe tener al menos 6 caracteres")
 	}
 
-	var passwordRegex = regexp.MustCompile(`^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$`)
+	var hasUpper, hasLower, hasDigit bool
+	for _, char := range password {
+		switch {
+		case unicode.IsUpper(char):
+			hasUpper = true
+		case unicode.IsLower(char):
+			hasLower = true
+		case unicode.IsDigit(char):
+			hasDigit = true
+		}
+	}
 
-	if !passwordRegex.MatchString(password) {
-		if !regexp.MustCompile(`[a-z]`).MatchString(password) {
-			errorMessages = append(errorMessages, "la contraseña debe contener al menos una minúscula")
-		}
-		if !regexp.MustCompile(`[A-Z]`).MatchString(password) {
-			errorMessages = append(errorMessages, "la contraseña debe contener al menos una mayúscula")
-		}
-		if !regexp.MustCompile(`\d`).MatchString(password) {
-			errorMessages = append(errorMessages, "la contraseña debe contener al menos un número")
-		}
+	if !hasLower {
+		errorMessages = append(errorMessages, "la contraseña debe contener al menos una minúscula")
+	}
+	if !hasUpper {
+		errorMessages = append(errorMessages, "la contraseña debe contener al menos una mayúscula")
+	}
+	if !hasDigit {
+		errorMessages = append(errorMessages, "la contraseña debe contener al menos un número")
 	}
 
 	if len(errorMessages) > 0 {

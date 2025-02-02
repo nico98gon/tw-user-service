@@ -1,3 +1,4 @@
 .env
 /tmp/
 /output/
+.DS_Store

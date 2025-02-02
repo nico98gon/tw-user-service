@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"user-service/services"

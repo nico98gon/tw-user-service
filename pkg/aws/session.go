@@ -14,7 +14,7 @@ var err error
 func StartAWS() {
 	Ctx = context.TODO()
 	// region := os.Getenv("AWS_REGION")
-	region := "sa-east-1"
+	region := "us-east-1"
 	Cfg, err = config.LoadDefaultConfig(Ctx, config.WithDefaultRegion(region))
 	if err != nil {
 		panic("Error al cargar la configuración de AWS" + err.Error())

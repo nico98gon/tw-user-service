@@ -42,6 +42,23 @@ func LambdaExec(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 	}
 
 	path := strings.Replace(request.PathParameters["twitteruala"], os.Getenv("URL_PREFIX"), "", -1)
+	path = strings.TrimPrefix(path, "/")
+
+	if path == "" {
+		path = strings.TrimPrefix(request.Path, "/development/")
+		path = strings.TrimPrefix(path, "/")
+	}
+
+	if request.Body == "" {
+    res := &events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "El cuerpo de la solicitud no puede estar vacío",
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+    }
+    return res, nil
+	}
 
 	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("path"), path)
 	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("method"), request.HTTPMethod)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 	"user-service/internal/domain"
 	"user-service/internal/domain/users"
 	"user-service/internal/infrastructure/db"
@@ -36,6 +37,8 @@ func Register(ctx context.Context) domain.RespAPI {
 		fmt.Println(r.Message)
 		return r
 	}
+
+	u.CreatedAt = time.Now()
 
 	_, status, err := db.InsertRegister(u)
 	if err != nil {

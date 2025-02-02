@@ -11,58 +11,54 @@ import (
 )
 
 func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) domain.RespAPI {
-	// Envía a CloudWatch Logs
-	fmt.Println("Procesando"+ctx.Value(domain.Key("path")).(string) + " > " + ctx.Value(domain.Key("method")).(string))
+	fmt.Println("Procesando:", ctx.Value(domain.Key("path")).(string), ">", ctx.Value(domain.Key("method")).(string))
 
 	var r domain.RespAPI
 	r.Status = 400
 
 	isOk, statusCode, msg, _ := checkAuth(ctx, request)
 	if !isOk {
+		fmt.Println("Falló la autenticación:", msg)
 		r.Status = statusCode
 		r.Message = msg
 		return r
 	}
 
+	fmt.Println("Autenticación exitosa")
+
 	switch ctx.Value(domain.Key("method")).(string) {
 	case "GET":
-		switch ctx.Value(domain.Key("path")).(string) {
-		
-		}
-		//
+		fmt.Println("Método GET detectado")
 	case "POST":
+		fmt.Println("Método POST detectado")
 		switch ctx.Value(domain.Key("path")).(string) {
 		case "register":
-			return routers.Register(ctx)
-		
+			fmt.Println("Procesando registro de usuario...")
+			r = routers.Register(ctx)
+			fmt.Println("Registro finalizado:", r.Message)
+			return r
 		}
-		//
-	case "PUT":
-		switch ctx.Value(domain.Key("path")).(string) {
-		
-		}
-		//
-	case "DELETE":
-		switch ctx.Value(domain.Key("path")).(string) {
-		
-		}
-		//
 	}
 
+	fmt.Println("Método inválido detectado")
 	r.Message = "Method Invalid"
 	return r
 }
 
 func checkAuth(ctx context.Context, request events.APIGatewayProxyRequest) (isOk bool, statusCode int, msg string, claim *domain.Claim) {
 	path := ctx.Value(domain.Key("path")).(string)
-	if path == "/register" || path == "/login" || path == "/get-avatar" || path == "/get-banner" {
+	if path == "register" || path == "login" || path == "get-avatar" || path == "get-banner" {
 		return true, 200, "OK", &domain.Claim{}
 	}
 
 	token := request.Headers["Authorization"]
 	if len(token) == 0 {
-		return false, 401, "Unauthorized: Token requerido", &domain.Claim{}
+			fmt.Println("path:", path)
+			fmt.Println("Token no encontrado en el encabezado de la solicitud")
+			return false, 401, "Unauthorized: Token requerido", &domain.Claim{}
 	}
+
+	fmt.Println("Token recibido:", token)
 
 	claim, isOk, msg, err := jwt.ProcessToken(token, ctx.Value(domain.Key("JWTSign")).(string))
 	if !isOk {
