@@ -29,19 +29,19 @@ func RegisterValidations(u User) error {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
-	if err := validateURL(u.Avatar, true); err != nil {
+	if err := validateURL(u.Avatar); err != nil {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
-	if err := validateURL(u.Banner, true); err != nil {
+	if err := validateURL(u.Banner); err != nil {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
-	if err := validateURL(u.WebSite, true); err != nil {
+	if err := validateURL(u.WebSite); err != nil {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
-	if err := validateLocation(u.Location, true); err != nil {
+	if err := validateLocation(u.Location); err != nil {
 		errorMessages = append(errorMessages, err.Error())
 	}
 

@@ -107,10 +107,7 @@ func validatePassword(password string) error {
 	return nil
 }
 
-func validateURL(url string, required bool) error {
-	if required && len(url) == 0 {
-		return errors.New("la URL es requerida")
-	}
+func validateURL(url string) error {
 	if len(url) > 0 {
 		urlRegex := regexp.MustCompile(`^https?:\/\/[^\s]+$`)
 		if !urlRegex.MatchString(url) {
@@ -120,10 +117,7 @@ func validateURL(url string, required bool) error {
 	return nil
 }
 
-func validateLocation(location string, required bool) error {
-	if required && len(location) == 0 {
-		return errors.New("la ubicación es requerida")
-	}
+func validateLocation(location string) error {
 	if len(location) > 100 {
 		return errors.New("la ubicación no puede tener más de 100 caracteres")
 	}

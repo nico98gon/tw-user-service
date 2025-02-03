@@ -16,11 +16,11 @@ func UpdateValidations(u User) error {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
-	if err := validateURL(u.WebSite, false); err != nil {
+	if err := validateURL(u.WebSite); err != nil {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
-	if err := validateLocation(u.Location, false); err != nil {
+	if err := validateLocation(u.Location); err != nil {
 		errorMessages = append(errorMessages, err.Error())
 	}
 

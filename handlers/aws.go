@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"user-service/internal/domain"
 	"user-service/internal/infrastructure/routers"
@@ -33,7 +34,7 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 
 		case "profile":
 			fmt.Println("Procesando perfil de usuario...")
-			r = routers.Profile(request)
+			r = routers.Profile(request, claim)
 			fmt.Println("Perfil de usuario finalizado:", r.Message)
 			return r
 		}
@@ -78,7 +79,20 @@ func checkAuth(ctx context.Context, request events.APIGatewayProxyRequest) (isOk
 		return true, 200, "OK", &domain.Claim{}
 	}
 
-	token := request.Headers["Authorization"]
+	var token string
+
+	if os.Getenv("APP_ENV") == "local" {
+		for key, value := range request.Headers {
+			if strings.ToLower(key) == "authorization" {
+				token = value
+				break
+			}
+		}
+	} else {
+		token = request.Headers["Authorization"]
+		fmt.Println("Token en lambda: ", token)
+	}
+
 	if len(token) == 0 {
 		fmt.Println("path:", path)
 		fmt.Println("Token no encontrado en el encabezado de la solicitud")

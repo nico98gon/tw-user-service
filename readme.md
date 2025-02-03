@@ -43,6 +43,22 @@ La base de datos es no relacional específicamente **MongoDB**, esto para un des
 
 #### Local
 
+Para poder correr la aplicación en local se debe instalar y configurar el CLI de AWS:
+
+``````
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+``````
+
+Configurar credenciales:
+
+`aws configure`
+
+Verificar que las credenciales están configuradas:
+
+`cat ~/.aws/credentials`
+
 #### Producción
 
 Para poder buildear y subir nuestro .zip a lambda en AWS, deberemos ejecutar:

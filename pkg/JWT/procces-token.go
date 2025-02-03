@@ -2,9 +2,9 @@ package jwt
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"user-service/internal/domain"
-	"user-service/internal/infrastructure/db"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -18,27 +18,30 @@ func ProcessToken(token string, JWTSign string) (*domain.Claim, bool, string, er
 
 	splitToken := strings.Split(token, "Bearer")
 	if len(splitToken) != 2 {
-		return &claims, false, "", errors.New("formato de token inválido")
+		fmt.Println("Error: Formato de token inválido")
+		return &claims, false, "", errors.New("formato de token inválido")
 	}
 	token = strings.TrimSpace(splitToken[1])
+
+	fmt.Println("Token limpio después de split:", token)
 
 	tkn, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
 		return myKey, nil
 	})
+
 	if err != nil {
-		_, found, _ := db.UserAlreadyExists(claims.Email)
-		if found {
-			Email = claims.Email
-			IDUsuario = claims.ID.Hex()
-		}
-		return &claims, true, IDUsuario, nil
+		fmt.Println("Error en jwt.ParseWithClaims:", err)
+		return &claims, false, "", err
 	}
+
 	if !tkn.Valid {
-		return &claims, false, "", errors.New("token inválido")
+		fmt.Println("Token inválido")
+		return &claims, false, "", errors.New("token inválido")
 	}
 
 	Email = claims.Email
 	IDUsuario = claims.ID.Hex()
 
-	return &claims, false, "", nil
+	fmt.Println("Token válido - Usuario:", Email, "ID:", IDUsuario)
+	return &claims, true, "", nil
 }

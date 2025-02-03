@@ -50,15 +50,15 @@ func LambdaExec(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 		path = strings.TrimPrefix(path, "/")
 	}
 
-	if request.Body == "" {
-    res := &events.APIGatewayProxyResponse{
+	if (request.HTTPMethod == "POST" || request.HTTPMethod == "PUT" || request.HTTPMethod == "PATCH") && request.Body == "" {
+		res := &events.APIGatewayProxyResponse{
 			StatusCode: 400,
 			Body:       "El cuerpo de la solicitud no puede estar vacío",
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-    }
-    return res, nil
+		}
+		return res, nil
 	}
 
 	if SecretModels.JWTSign == "" {
