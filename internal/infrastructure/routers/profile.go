@@ -1,10 +1,10 @@
 package routers
 
 import (
-	"encoding/json"
 	"fmt"
 	"user-service/internal/domain"
 	"user-service/internal/infrastructure/db"
+	"user-service/internal/utils"
 
 	"github.com/aws/aws-lambda-go/events"
 )
@@ -28,20 +28,10 @@ func Profile(request events.APIGatewayProxyRequest, claim *domain.Claim) domain.
 		return r
 	}
 
-	respJson, err := json.Marshal(profile)
-	if err != nil {
-		r.Status = 500
-		r.Message = "Error al serializar el perfil: " + err.Error()
-		return r
-	}
-
 	r.Status = 200
-	r.CustomResp = &events.APIGatewayProxyResponse{
-		StatusCode: 200,
-		Headers: map[string]string{
-			"Content-Type": "application/json",
-		},
-		Body: string(respJson),
-	}
+	r.Message = "Perfil encontrado"
+	r.Data = profile
+	r.CustomResp = utils.FormatResponse(200, "Perfil encontrado", profile, nil)
+
 	return r
 }

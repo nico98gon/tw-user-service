@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"user-service/internal/domain/users"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -37,9 +38,14 @@ func UpdateRegister(u users.User, ID string) (bool, error) {
 	objID, _ := primitive.ObjectIDFromHex(ID)
 	filter := bson.M{"_id": bson.M{"$eq": objID}}
 
-	_, err := col.UpdateOne(ctx, filter, updateStr)
+	updateResult, err := col.UpdateOne(ctx, filter, updateStr)
 	if err != nil {
 		return false, err
+	}
+	fmt.Printf("Número de documentos actualizados: %d\n", updateResult.ModifiedCount)
+	
+	if updateResult.ModifiedCount == 0 {
+		return false, fmt.Errorf("Los datos a actualizar son iguales a los actuales")
 	}
 
 	return true, nil

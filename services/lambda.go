@@ -8,6 +8,7 @@ import (
 	"user-service/handlers"
 	"user-service/internal/domain"
 	"user-service/internal/infrastructure/db"
+	"user-service/internal/utils"
 	"user-service/pkg/aws"
 	secretmanager "user-service/pkg/secret-manager"
 
@@ -15,31 +16,15 @@ import (
 )
 
 func LambdaExec(ctx context.Context, request events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
-	var res *events.APIGatewayProxyResponse
-
-	aws.StartAWS()   
+	aws.StartAWS()
 
 	if !validateParams() {
-		res = &events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body: "Error en las variables de entorno. Deben incluir 'SECRET_NAME', 'BUCKET_NAME' y 'URL_PREFIX'",
-			Headers: map[string]string{
-				"Content-Type": "application/json",
-			},
-		}
-		return res, nil
+		return utils.HandleError(400, "Error en las variables de entorno. Deben incluir 'SECRET_NAME', 'BUCKET_NAME' y 'URL_PREFIX'"), nil
 	}
 
 	SecretModels, err := secretmanager.GetSecret(os.Getenv("SECRET_NAME"))
 	if err != nil {
-		res = &events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body: "Error al obtener secret"+err.Error(),
-			Headers: map[string]string{
-				"Content-Type": "application/json",
-			},
-		}
-		return res, nil
+		return utils.HandleError(400, "Error al obtener secret: "+err.Error()), nil
 	}
 
 	path := strings.Replace(request.PathParameters["twitteruala"], os.Getenv("URL_PREFIX"), "", -1)
@@ -51,18 +36,11 @@ func LambdaExec(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 	}
 
 	if (request.HTTPMethod == "POST" || request.HTTPMethod == "PUT" || request.HTTPMethod == "PATCH") && request.Body == "" {
-		res := &events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       "El cuerpo de la solicitud no puede estar vacío",
-			Headers: map[string]string{
-				"Content-Type": "application/json",
-			},
-		}
-		return res, nil
+		return utils.HandleError(400, "El cuerpo de la solicitud no puede estar vacío"), nil
 	}
 
 	if SecretModels.JWTSign == "" {
-    return nil, fmt.Errorf("JWTSign no encontrado en SecretModels")
+		return nil, fmt.Errorf("JWTSign no encontrado en SecretModels")
 	}
 
 	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("path"), path)
@@ -77,26 +55,12 @@ func LambdaExec(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 
 	err = db.ConnectMongo(aws.Ctx)
 	if err != nil {
-		res := &events.APIGatewayProxyResponse{
-			StatusCode: 500,
-			Body: "Error al conectar a la base de datos" + err.Error(),
-			Headers: map[string]string {
-				"Content-Type": "application/json",
-			},
-		}
-		return res, nil
+		return utils.HandleError(500, "Error al conectar a la base de datos: "+err.Error()), nil
 	}
 
 	respAPI := handlers.AwsHandler(aws.Ctx, request)
 	if respAPI.CustomResp == nil {
-		res := &events.APIGatewayProxyResponse{
-			StatusCode: respAPI.Status,
-			Body: respAPI.Message,
-			Headers: map[string]string {
-				"Content-Type": "application/json",
-			},
-		}
-		return res, nil
+		return utils.FormatResponse(respAPI.Status, respAPI.Message, respAPI.Data, respAPI.Meta), nil
 	} else {
 		return respAPI.CustomResp, nil
 	}

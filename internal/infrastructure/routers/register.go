@@ -17,10 +17,16 @@ func Register(ctx context.Context) domain.RespAPI {
 
 	fmt.Println(" > Registro de usuario")
 
-	body := ctx.Value(domain.Key("body")).(string)
+	body, ok := ctx.Value(domain.Key("body")).(string)
+	if !ok {
+		r.Message = "Error: No se pudo obtener el body de la solicitud"
+		fmt.Println(r.Message)
+		return r
+	}
+
 	err := json.Unmarshal([]byte(body), &u)
 	if err != nil {
-		r.Message = "Error al parsear el body"
+		r.Message = "Error al parsear el body: " + err.Error()
 		fmt.Println(r.Message)
 		return r
 	}
@@ -42,7 +48,7 @@ func Register(ctx context.Context) domain.RespAPI {
 
 	_, status, err := db.InsertRegister(u)
 	if err != nil {
-		r.Message = "Error al intentar registrar el usuario"+ err.Error()
+		r.Message = "Error al intentar registrar el usuario: " + err.Error()
 		fmt.Println(r.Message)
 		return r
 	}
