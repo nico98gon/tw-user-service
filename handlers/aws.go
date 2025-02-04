@@ -28,7 +28,7 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 	case "GET":
 		fmt.Println("Método GET detectado")
 		switch ctx.Value(domain.Key("path")).(string) {
-		case "profile":
+		case "get-profile":
 			fmt.Println("Procesando perfil de usuario...")
 			r = routers.Profile(request, claim)
 			fmt.Println("Perfil de usuario finalizado:", r.Message)

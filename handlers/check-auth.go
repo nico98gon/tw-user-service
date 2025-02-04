@@ -14,8 +14,12 @@ import (
 
 func checkAuth(ctx context.Context, request events.APIGatewayProxyRequest) (isOk bool, statusCode int, msg string, claim *domain.Claim) {
 	path := ctx.Value(domain.Key("path")).(string)
-	if path == "register" || path == "login" || path == "get-avatar" || path == "get-banner" {
-		return true, 200, "OK", &domain.Claim{}
+	fmt.Println("path:", path)
+	validPaths := []string{"register", "login", "get-profile", "get-avatar", "get-banner"}
+	for _, validPath := range validPaths {
+		if strings.Contains(path, validPath) {
+			return true, 200, "OK", &domain.Claim{}
+		}
 	}
 
 	var token string

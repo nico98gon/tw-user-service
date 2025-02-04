@@ -72,3 +72,23 @@ Para poder buildear y subir nuestro .zip a lambda en AWS, deberemos ejecutar:
 
 - Damos permisos de ejecución: `chmod +x build_lambda.sh`
 - Corremos el archivo: `./build_lambda.sh`
+
+# Enviroment and ports
+APP_ENV=local
+PORT=8081 #8082 #8083...
+
+# AWS
+# AWS_REGION="sa-east-1"
+BUCKET_NAME= # Nombre de tu S3 Bucket 
+SECRET_NAME= # Nombre de tu Secret Manager
+URL_PREFIX= # Prefijo de URL API Gateway
+
+# BCRYPT & JWT
+BCRYPT_COST=6 # 6 para local está bien, 8 para desarrollo y 10 para producción
+JWT_SIGN=EsteEsEl-TokenDeNico-PARA-ENTR-uala
+
+# Database
+DB_USERNAME=
+DB_PASSWORD=
+DB_HOST=
+DB_DATABASE=

@@ -23,8 +23,6 @@ func ProcessToken(token string, JWTSign string) (*domain.Claim, bool, string, er
 	}
 	token = strings.TrimSpace(splitToken[1])
 
-	fmt.Println("Token limpio después de split:", token)
-
 	tkn, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
 		return myKey, nil
 	})

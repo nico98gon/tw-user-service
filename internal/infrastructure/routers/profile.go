@@ -16,12 +16,15 @@ func Profile(request events.APIGatewayProxyRequest, claim *domain.Claim) domain.
 	fmt.Println(" > Perfil de usuario")
 
 	ID := claim.ID.Hex()
-	if len(ID) == 0 {
-		r.Message = "ID es requerido"
-		return r
+	if len(ID) == 0 || ID == "000000000000000000000000" {
+		ID = request.QueryStringParameters["id"]
+		if len(ID) == 0 || ID == "000000000000000000000000" {
+			r.Message = "ID es requerido"
+			return r
+		}
 	}
 
-	fmt.Println("Buscando perfil con ID:", ID)
+	fmt.Println("Buscando perfil con ID: ", ID)
 	profile, err := db.SearchProfile(ID)
 	if err != nil {
 		r.Message = "Error al buscar el perfil: " + err.Error()

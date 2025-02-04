@@ -29,11 +29,19 @@ func StartLocalServer() {
 			}
 		}
 
+		queryParams := make(map[string]string)
+		for key, values := range r.URL.Query() {
+			if len(values) > 0 {
+				queryParams[key] = values[0]
+			}
+		}
+
 		request := events.APIGatewayProxyRequest{
-			HTTPMethod: r.Method,
-			Path:       r.URL.Path,
-			Headers:    headers,
-			Body:       string(body),
+			HTTPMethod: 						r.Method,
+			Path:       						r.URL.Path,
+			Headers:    						headers,
+			QueryStringParameters:	queryParams,
+			Body:       						string(body),
 		}
 
 		response, err := services.LambdaExec(context.Background(), request)
