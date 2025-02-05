@@ -46,6 +46,12 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 			fmt.Println("Banner de usuario finalizado:", r.Message)
 			return r
 
+		case "get-relation":
+			fmt.Println("Procesando relaciones de usuario...")
+			r = routers.GetRelation(request, claim)
+			fmt.Println("Relaciones de usuario finalizado:", r.Message)
+			return r
+
 		}
 
 	case "POST":
@@ -75,7 +81,7 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 			fmt.Println("Carga de banner finalizada:", r.Message)
 			return r
 
-		case "reg-relation":
+		case "new-relation":
 			fmt.Println("Procesando registro de relación...")
 			r = routers.RegisterRelation(ctx, request, claim)
 			fmt.Println("Registro de relación finalizado:", r.Message)
@@ -92,6 +98,15 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 			fmt.Println("Actualización de perfil de usuario finalizada:", r.Message)
 			return r
 		}
+
+		case "DELETE":
+			fmt.Println("Método DELETE detectado")
+			switch ctx.Value(domain.Key("path")).(string) {
+			case "delete-relation":
+				fmt.Println("Procesando eliminación de relación...")
+				r = routers.DeleteRelation(request, claim)
+				return r
+			}
 	}
 
 	fmt.Println("Método inválido detectado")

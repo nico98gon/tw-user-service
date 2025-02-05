@@ -1,7 +1,6 @@
 package routers
 
 import (
-	"context"
 	"fmt"
 	"user-service/internal/domain"
 	"user-service/internal/domain/relations"
@@ -10,13 +9,13 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 )
 
-func RegisterRelation(ctx context.Context, request events.APIGatewayProxyRequest, claim *domain.Claim) domain.RespAPI {
+func GetRelation(request events.APIGatewayProxyRequest, claim *domain.Claim) domain.RespAPI {
 	var r domain.RespAPI
 	r.Status = 400
-
+	
 	IDRel := request.QueryStringParameters["id"]
 	if len(IDRel) == 0 || IDRel == "000000000000000000000000" {
-		r.Message = "ID de usuario relación es requerido: " + IDRel
+		r.Message = "ID de usuarioImageRelation es requerido: " + IDRel
 		return r
 	}
 
@@ -31,19 +30,19 @@ func RegisterRelation(ctx context.Context, request events.APIGatewayProxyRequest
 	rel.UserID = UserID
 	rel.UserIDRel = IDRel
 
-	status, err := db.InsertRelation(rel)
-	if err != nil {
-		r.Message = "Error al registrar la relación: " + err.Error()
-		return r
-	}
+	var resp domain.RespGetRel
 
-	if !status {
-		r.Message = "Error al registrar la relación"
-		return r
+	isRelation := db.SearchRelation(rel)
+
+	if isRelation {
+		resp.Status = true
+	} else {
+		resp.Status = false
 	}
 
 	r.Status = 200
-	r.Message = "Se registro la relación correctamente"
+	r.Message = "Relacion encontrada"
+	r.Data = resp
 
 	return r
 }
