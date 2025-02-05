@@ -33,6 +33,19 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 			r = routers.Profile(request, claim)
 			fmt.Println("Perfil de usuario finalizado:", r.Message)
 			return r
+		
+		case "get-avatar":
+			fmt.Println("Procesando avatar de usuario...")
+			r = routers.GetImage(ctx, "A", request)
+			fmt.Println("Avatar de usuario finalizado:", r.Message)
+			return r
+
+		case "get-banner":
+			fmt.Println("Procesando banner de usuario...")
+			r = routers.GetImage(ctx, "B", request)
+			fmt.Println("Banner de usuario finalizado:", r.Message)
+			return r
+
 		}
 
 	case "POST":
@@ -49,6 +62,19 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 			r = routers.Login(ctx)
 			fmt.Println("Inicio de sesión finalizado:", r.Message)
 			return r
+
+		case "upload-avatar":
+			fmt.Println("Procesando carga de avatar...")
+			r = routers.UploadImage(ctx, "A", request, claim)
+			fmt.Println("Carga de avatar finalizada:", r.Message)
+			return r
+
+		case "upload-banner":
+			fmt.Println("Procesando carga de banner...")
+			r = routers.UploadImage(ctx, "B", request, claim)
+			fmt.Println("Carga de banner finalizada:", r.Message)
+			return r
+
 		}
 
 	case "PUT":

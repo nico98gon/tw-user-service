@@ -14,23 +14,14 @@ func SearchProfile(ID string) (users.User, error) {
 	col := db.Collection("users")
 
 	var profile users.User
-	var err error
+	ObjID, _ := primitive.ObjectIDFromHex(ID)
 
-	ObjID, objIDErr := primitive.ObjectIDFromHex(ID)
-	if objIDErr == nil {
-		condition := bson.M{"_id": ObjID}
-		err = col.FindOne(ctx, condition).Decode(&profile)
-	}
-
-	if objIDErr != nil || err != nil {
-		condition := bson.M{"_id": ID}
-		err = col.FindOne(ctx, condition).Decode(&profile)
-	}
-
+	condition := bson.M{"_id": ObjID}
+	err := col.FindOne(ctx, condition).Decode(&profile)
+	profile.Password = ""
 	if err != nil {
 		return profile, err
 	}
 
-	profile.Password = ""
 	return profile, nil
 }

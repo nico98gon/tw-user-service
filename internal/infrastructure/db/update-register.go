@@ -33,6 +33,12 @@ func UpdateRegister(u users.User, ID string) (bool, error) {
 	if len(u.Location) > 0 {
 		register["location"] = u.Location
 	}
+	if len(u.Avatar) > 0 {
+		register["avatar"] = u.Avatar
+	}
+	if len(u.Banner) > 0 {
+		register["banner"] = u.Banner
+	}
 
 	updateStr := bson.M{"$set": register}
 	objID, _ := primitive.ObjectIDFromHex(ID)
@@ -43,7 +49,7 @@ func UpdateRegister(u users.User, ID string) (bool, error) {
 		return false, err
 	}
 	fmt.Printf("Número de documentos actualizados: %d\n", updateResult.ModifiedCount)
-	
+
 	if updateResult.ModifiedCount == 0 {
 		return false, fmt.Errorf("Los datos a actualizar son iguales a los actuales")
 	}
