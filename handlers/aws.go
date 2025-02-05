@@ -75,6 +75,12 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 			fmt.Println("Carga de banner finalizada:", r.Message)
 			return r
 
+		case "reg-relation":
+			fmt.Println("Procesando registro de relación...")
+			r = routers.RegisterRelation(ctx, request, claim)
+			fmt.Println("Registro de relación finalizado:", r.Message)
+			return r
+
 		}
 
 	case "PUT":
