@@ -1,0 +1,7 @@
+Assumptions
+
+● Todos los usuarios son válidos, no es necesario crear un módulo de signin ni
+manejar sesiones. Se puede enviar el identicador de un usuario por header,
+param, body o por donde crea más conveniente.
+● Pensar una solución que pueda escalar a millones de usuarios.
+● La aplicación tiene que estar optimizada para lecturas.

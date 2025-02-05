@@ -33,6 +33,12 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 			r = routers.Profile(request, claim)
 			fmt.Println("Perfil de usuario finalizado:", r.Message)
 			return r
+
+		case "get-users":
+			fmt.Println("Procesando usuarios...")
+			r = routers.GetUsers(request, claim)
+			fmt.Println("Usuarios finalizados:", r.Message)
+			return r
 		
 		case "get-avatar":
 			fmt.Println("Procesando avatar de usuario...")
