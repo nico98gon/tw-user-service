@@ -15,8 +15,15 @@ import (
 func GetSecret(secretName string) (domain.Secret, error) {
 	var secretData domain.Secret
 
+	useAWSSecrets := os.Getenv("USE_AWS_SECRETS") == "true"
+
+	if os.Getenv("APP_ENV") == "local" && useAWSSecrets {
+		fmt.Println("> [LOCAL] Usando AWS Secrets Manager")
+		return getAWSSecret(secretName)
+	}
+
 	if os.Getenv("APP_ENV") == "local" {
-		// En local: Leer secretos desde un archivo o variables de entorno
+		fmt.Println("> [LOCAL] Usando variables de entorno locales")
 		secretData = domain.Secret{
 			Username: os.Getenv("DB_USERNAME"),
 			Password: os.Getenv("DB_PASSWORD"),
@@ -24,30 +31,29 @@ func GetSecret(secretName string) (domain.Secret, error) {
 			Database: os.Getenv("DB_DATABASE"),
 			JWTSign:  os.Getenv("JWT_SIGN"),
 		}
-		// fmt.Println("> Usando secretos locales:", secretData)
 		return secretData, nil
 	}
 
-	// En Lambda: Obtener secretos desde AWS Secrets Manager
-	fmt.Println("> Se pide secreto desde AWS Secrets Manager:", secretName)
+	fmt.Println("> [AWS] Usando AWS Secrets Manager")
+	return getAWSSecret(secretName)
+}
+
+// Función separada para obtener secretos de AWS
+func getAWSSecret(secretName string) (domain.Secret, error) {
+	var secretData domain.Secret
 
 	svc := secretsmanager.NewFromConfig(awsSession.Cfg)
 	key, err := svc.GetSecretValue(awsSession.Ctx, &secretsmanager.GetSecretValueInput{
 		SecretId: aws.String(secretName),
 	})
 	if err != nil {
-		fmt.Println("Error al obtener el secreto:", err.Error())
-		return secretData, err
+		return secretData, fmt.Errorf("error al obtener secreto: %v", err)
 	}
-
-	fmt.Println("Secreto obtenido:", *key.SecretString)
 
 	err = json.Unmarshal([]byte(*key.SecretString), &secretData)
 	if err != nil {
-		fmt.Println("Error al deserializar el secreto:", err.Error())
-		return secretData, err
+		return secretData, fmt.Errorf("error deserializando secreto: %v", err)
 	}
 
-	fmt.Println("Secreto deserializado:", secretData)
 	return secretData, nil
 }
