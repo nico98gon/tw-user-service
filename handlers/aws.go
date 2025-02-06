@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"user-service/internal/domain"
 	"user-service/internal/infrastructure/routers"
-	jwt "user-service/pkg/JWT"
 
 	"github.com/aws/aws-lambda-go/events"
 )
@@ -16,7 +15,7 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 	var r domain.RespAPI
 	r.Status = 400
 
-	isOk, statusCode, msg, _ := checkAuth(ctx, request)
+	isOk, statusCode, msg, claim := checkAuth(ctx, request)
 	if !isOk {
 		fmt.Println("Falló la autenticación:", msg)
 		r.Status = statusCode
@@ -25,10 +24,53 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 	}
 
 	fmt.Println("Autenticación exitosa")
-
 	switch ctx.Value(domain.Key("method")).(string) {
 	case "GET":
 		fmt.Println("Método GET detectado")
+		switch ctx.Value(domain.Key("path")).(string) {
+		case "get-profile":
+			fmt.Println("Procesando perfil de usuario...")
+			r = routers.Profile(request, claim)
+			fmt.Println("Perfil de usuario finalizado:", r.Message)
+			return r
+
+		case "get-users":
+			fmt.Println("Procesando usuarios...")
+			r = routers.GetUsers(request, claim)
+			fmt.Println("Usuarios finalizados:", r.Message)
+			return r
+
+		case "get-avatar":
+			fmt.Println("Procesando avatar de usuario...")
+			r = routers.GetImage(ctx, "A", request)
+			fmt.Println("Avatar de usuario finalizado:", r.Message)
+			return r
+
+		case "get-banner":
+			fmt.Println("Procesando banner de usuario...")
+			r = routers.GetImage(ctx, "B", request)
+			fmt.Println("Banner de usuario finalizado:", r.Message)
+			return r
+
+		case "get-relation":
+			fmt.Println("Procesando relaciones de usuario...")
+			r = routers.GetRelation(request, claim)
+			fmt.Println("Relaciones de usuario finalizado:", r.Message)
+			return r
+
+		case "get-following":
+			fmt.Println("Procesando seguidos...")
+			r = routers.GetFollowing(request)
+			fmt.Println("Seguidos obtenidos:", r.Message)
+			return r
+
+		case "get-followers":
+			fmt.Println("Procesando seguidores...")
+			r = routers.GetFollowers(request)
+			fmt.Println("Seguidores obtenidos:", r.Message)
+			return r
+		}
+
 	case "POST":
 		fmt.Println("Método POST detectado")
 		switch ctx.Value(domain.Key("path")).(string) {
@@ -37,10 +79,48 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 			r = routers.Register(ctx)
 			fmt.Println("Registro finalizado:", r.Message)
 			return r
+
 		case "login":
 			fmt.Println("Procesando inicio de sesión...")
 			r = routers.Login(ctx)
 			fmt.Println("Inicio de sesión finalizado:", r.Message)
+			return r
+
+		case "upload-avatar":
+			fmt.Println("Procesando carga de avatar...")
+			r = routers.UploadImage(ctx, "A", request, claim)
+			fmt.Println("Carga de avatar finalizada:", r.Message)
+			return r
+
+		case "upload-banner":
+			fmt.Println("Procesando carga de banner...")
+			r = routers.UploadImage(ctx, "B", request, claim)
+			fmt.Println("Carga de banner finalizada:", r.Message)
+			return r
+
+		case "new-relation":
+			fmt.Println("Procesando registro de relación...")
+			r = routers.RegisterRelation(ctx, request, claim)
+			fmt.Println("Registro de relación finalizado:", r.Message)
+			return r
+		}
+
+	case "PUT":
+		fmt.Println("Método PUT detectado")
+		switch ctx.Value(domain.Key("path")).(string) {
+		case "update-profile":
+			fmt.Println("Procesando actualización de perfil de usuario...")
+			r = routers.UpdateProfile(ctx, claim)
+			fmt.Println("Actualización de perfil de usuario finalizada:", r.Message)
+			return r
+		}
+
+	case "DELETE":
+		fmt.Println("Método DELETE detectado")
+		switch ctx.Value(domain.Key("path")).(string) {
+		case "delete-relation":
+			fmt.Println("Procesando eliminación de relación...")
+			r = routers.DeleteRelation(request, claim)
 			return r
 		}
 	}
@@ -48,34 +128,4 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 	fmt.Println("Método inválido detectado")
 	r.Message = "Method Invalid"
 	return r
-}
-
-func checkAuth(ctx context.Context, request events.APIGatewayProxyRequest) (isOk bool, statusCode int, msg string, claim *domain.Claim) {
-	path := ctx.Value(domain.Key("path")).(string)
-	if path == "register" || path == "login" || path == "get-avatar" || path == "get-banner" {
-		return true, 200, "OK", &domain.Claim{}
-	}
-
-	token := request.Headers["Authorization"]
-	if len(token) == 0 {
-			fmt.Println("path:", path)
-			fmt.Println("Token no encontrado en el encabezado de la solicitud")
-			return false, 401, "Unauthorized: Token requerido", &domain.Claim{}
-	}
-
-	fmt.Println("Token recibido:", token)
-
-	claim, isOk, msg, err := jwt.ProcessToken(token, ctx.Value(domain.Key("JWTSign")).(string))
-	if !isOk {
-		if err != nil {
-			fmt.Println("Error en el token: ", err)
-			return false, 401, "Unauthorized: Token inválido", &domain.Claim{}
-		} else {
-			fmt.Println("Error en el token: ", msg)
-			return false, 401, msg, &domain.Claim{}
-		}
-	}
-
-	fmt.Println("Token OK")
-	return true, 200, "OK", claim
 }

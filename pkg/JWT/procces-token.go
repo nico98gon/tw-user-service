@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"user-service/internal/domain"
 
@@ -17,21 +18,28 @@ func ProcessToken(token string, JWTSign string) (*domain.Claim, bool, string, er
 
 	splitToken := strings.Split(token, "Bearer")
 	if len(splitToken) != 2 {
-		return &claims, false, "", errors.New("formato de token inválido")
+		fmt.Println("Error: Formato de token inválido: ", token)
+		return &claims, false, "", errors.New("formato de token inválido")
 	}
-
 	token = strings.TrimSpace(splitToken[1])
 
 	tkn, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
 		return myKey, nil
 	})
+
 	if err != nil {
-		// Rutina que chequea en DB
+		fmt.Println("Error en jwt.ParseWithClaims:", err)
+		return &claims, false, "", err
 	}
+
 	if !tkn.Valid {
-		return &claims, false, "", errors.New("token inválido")
+		fmt.Println("Token inválido")
+		return &claims, false, "", errors.New("token inválido")
 	}
+
 	Email = claims.Email
 	IDUsuario = claims.ID.Hex()
-	return &claims, false, "", nil
+
+	fmt.Println("Token válido - Usuario:", Email, "ID:", IDUsuario)
+	return &claims, true, "", nil
 }

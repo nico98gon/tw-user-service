@@ -9,11 +9,11 @@ import (
 func RegisterValidations(u User) error {
 	var errorMessages []string
 
-	if err := validateName(u.Name); err != nil {
+	if err := validateName(u.Name, true); err != nil {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
-	if err := validateLastName(u.LastName); err != nil {
+	if err := validateLastName(u.LastName, true); err != nil {
 		errorMessages = append(errorMessages, err.Error())
 	}
 
