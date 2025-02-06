@@ -1,0 +1,44 @@
+services:
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    restart: unless-stopped
+    env_file:
+      - ./user-service/.env
+    environment:
+      - APP_ENV=local
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./user-service:/app
+      - ~/.cache/go-build:/go
+      - ~/.aws:/root/.aws
+    command: ["air", "-c", ".air.toml"]
+    networks:
+      - app-network
+
+  tweet-service:
+    build:
+      context: ./tweet-service
+      dockerfile: Dockerfile
+    container_name: tweet-service
+    restart: unless-stopped
+    env_file:
+      - ./tweet-service/.env
+    environment:
+      - APP_ENV=local
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./tweet-service:/app
+      - ~/.cache/go-build:/go
+      - ~/.aws:/root/.aws
+    command: ["air", "-c", ".air.toml"]
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
