@@ -18,7 +18,7 @@ func ProcessToken(token string, JWTSign string) (*domain.Claim, bool, string, er
 
 	splitToken := strings.Split(token, "Bearer")
 	if len(splitToken) != 2 {
-		fmt.Println("Error: Formato de token inválido")
+		fmt.Println("Error: Formato de token inválido: ", token)
 		return &claims, false, "", errors.New("formato de token inválido")
 	}
 	token = strings.TrimSpace(splitToken[1])

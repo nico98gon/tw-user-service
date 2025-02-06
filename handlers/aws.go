@@ -39,7 +39,7 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 			r = routers.GetUsers(request, claim)
 			fmt.Println("Usuarios finalizados:", r.Message)
 			return r
-		
+
 		case "get-avatar":
 			fmt.Println("Procesando avatar de usuario...")
 			r = routers.GetImage(ctx, "A", request)
@@ -58,6 +58,17 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 			fmt.Println("Relaciones de usuario finalizado:", r.Message)
 			return r
 
+		case "get-following":
+			fmt.Println("Procesando seguidos...")
+			r = routers.GetFollowing(request)
+			fmt.Println("Seguidos obtenidos:", r.Message)
+			return r
+
+		case "get-followers":
+			fmt.Println("Procesando seguidores...")
+			r = routers.GetFollowers(request)
+			fmt.Println("Seguidores obtenidos:", r.Message)
+			return r
 		}
 
 	case "POST":
@@ -92,7 +103,6 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 			r = routers.RegisterRelation(ctx, request, claim)
 			fmt.Println("Registro de relación finalizado:", r.Message)
 			return r
-
 		}
 
 	case "PUT":
@@ -105,14 +115,14 @@ func AwsHandler(ctx context.Context, request events.APIGatewayProxyRequest) doma
 			return r
 		}
 
-		case "DELETE":
-			fmt.Println("Método DELETE detectado")
-			switch ctx.Value(domain.Key("path")).(string) {
-			case "delete-relation":
-				fmt.Println("Procesando eliminación de relación...")
-				r = routers.DeleteRelation(request, claim)
-				return r
-			}
+	case "DELETE":
+		fmt.Println("Método DELETE detectado")
+		switch ctx.Value(domain.Key("path")).(string) {
+		case "delete-relation":
+			fmt.Println("Procesando eliminación de relación...")
+			r = routers.DeleteRelation(request, claim)
+			return r
+		}
 	}
 
 	fmt.Println("Método inválido detectado")

@@ -15,7 +15,7 @@ import (
 func checkAuth(ctx context.Context, request events.APIGatewayProxyRequest) (isOk bool, statusCode int, msg string, claim *domain.Claim) {
 	path := ctx.Value(domain.Key("path")).(string)
 	fmt.Println("path:", path)
-	validPaths := []string{"register", "login", "get-profile", "get-avatar", "get-banner"}
+	validPaths := []string{"register", "login", "get-profile", "get-avatar", "get-banner", "get-follow"}
 	for _, validPath := range validPaths {
 		if strings.Contains(path, validPath) {
 			return true, 200, "OK", &domain.Claim{}
