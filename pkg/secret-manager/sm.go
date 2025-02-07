@@ -28,6 +28,7 @@ func GetSecret(secretName string) (domain.Secret, error) {
 			Username: os.Getenv("DB_USERNAME"),
 			Password: os.Getenv("DB_PASSWORD"),
 			Host:     os.Getenv("DB_HOST"),
+			IsServ:   os.Getenv("DB_IS_SRV") == "true",
 			Database: os.Getenv("DB_DATABASE"),
 			JWTSign:  os.Getenv("JWT_SIGN"),
 		}

@@ -45,6 +45,8 @@ En el desafío se intentará llegar a dividir los microservicios en repositorios
 
 La base de datos es no relacional específicamente **MongoDB**, esto para un desarrollo rápido del desafío y por sus ventajas de flexibilidad de los datos. Pero como el desafío pide escalabilidad por si los usuarios escalan rápidamente, se pensó en una arquitectura DDD **Domain Driven Design** que permite centrarce en el dominio y así separar la lógica de negocio de las funciones de la base de datos y servicios externos. Esto es una gran ventaja si luego se requiere migrar algún microservicio a alguna base de datos relacional como **PostgreSQL** ó **MySQL**. Yo particularmente migraría el microservicio de usuarios a Postgres para mantener concistencia de los datos y evitar duplicados.
 
+La base de datos de mongo está configurada en docker-compose, si se desea utlizar mongo fuera de docker, se debe colocar la variable de entorno DB_IS_SRV=true
+
 
 ### Arquitectura
 

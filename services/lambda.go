@@ -49,6 +49,7 @@ func LambdaExec(ctx context.Context, request events.APIGatewayProxyRequest) (*ev
 	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("user"), SecretModels.Username)
 	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("password"), SecretModels.Password)
 	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("host"), SecretModels.Host)
+	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("isSrv"), SecretModels.IsServ)
 	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("database"), SecretModels.Database)
 	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("jwtSign"), SecretModels.JWTSign)
 	aws.Ctx = context.WithValue(aws.Ctx, domain.Key("bucket_name"), os.Getenv("BUCKET_NAME"))

@@ -5,5 +5,6 @@ type Secret struct {
 	Username 	string `json:"username"`
 	Password 	string `json:"password"`
 	JWTSign 	string `json:"jwtSign"`
+	IsServ		bool	 `json:"isServ"`
 	Database 	string `json:"database"`
 }
