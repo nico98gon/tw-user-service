@@ -1,18 +1,18 @@
 services:
-  user-service:
+  tw-user-service:
     build:
-      context: ./user-service
+      context: ./tw-user-service
       dockerfile: Dockerfile
-    container_name: user-service
+    container_name: tw-user-service
     restart: unless-stopped
     env_file:
-      - ./user-service/.env
+      - ./tw-user-service/.env
     environment:
       - APP_ENV=local
     ports:
       - "8081:8081"
     volumes:
-      - ./user-service:/app
+      - ./tw-user-service:/app
       - ~/.cache/go-build:/go
       - ~/.aws:/root/.aws
     command: ["air", "-c", ".air.toml"]
